@@ -1,52 +1,76 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CarController : MonoBehaviour
 {
-    [Header("Movement Settings")]
-    public float moveSpeed = 15f;
-    public float turnSpeed = 100f;
+    private float horizontalInput, verticalInput;
+    private float currentSteerAngle, currentbreakForce;
+    private bool isBreaking;
 
-    private float moveInput;
-    private float turnInput;
+    // Settings
+    [SerializeField] private float motorForce, breakForce, maxSteerAngle;
 
-    [Header("Optional Visual Wheels (Axles)")]
-    public Transform frontAxleTransform;
-    public Transform rearAxleTransform;
-    public float wheelRotationSpeed = 200f;
+    // Wheel Colliders
+    [SerializeField] private WheelCollider frontLeftWheelCollider, frontRightWheelCollider;
+    [SerializeField] private WheelCollider rearLeftWheelCollider, rearRightWheelCollider;
 
-    void Update()
-    {
-        // 1. Get Keyboard/Controller Inputs (W/S and A/D)
-        moveInput = Input.GetAxis("Vertical");     // Forward/Backward
-        turnInput = Input.GetAxis("Horizontal");   // Left/Right
+    // Wheels
+    [SerializeField] private Transform frontLeftWheelTransform, frontRightWheelTransform;
+    [SerializeField] private Transform rearLeftWheelTransform, rearRightWheelTransform;
 
-        // 2. Move the Car Forward/Backward
-        transform.Translate(Vector3.forward * moveInput * moveSpeed * Time.deltaTime);
+    private void Update() { GetInput(); }
 
-        // 3. Rotate the Car Left/Right (Only allow turning if the car is moving)
-        if (moveInput != 0)
-        {
-            // Reverse steering direction if backing up
-            float steeringDirection = moveInput > 0 ? 1f : -1f;
-            transform.Rotate(Vector3.up * turnInput * turnSpeed * steeringDirection * Time.deltaTime);
-        }
-
-        // 4. Spin the visual wheel axles if they are assigned
-        RotateVisualWheels();
-
+    private void FixedUpdate() {
+        HandleMotor();
+        HandleSteering();
+        UpdateWheels();
     }
 
-    void RotateVisualWheels()
-    {
-        if (moveInput != 0)
-        {
-            float rotationAmount = moveInput * wheelRotationSpeed * Time.deltaTime;
+    private void GetInput() {
+        // Steering Input
+        horizontalInput = Input.GetAxis("Horizontal");
 
-            if (frontAxleTransform != null)
-                frontAxleTransform.Rotate(Vector3.right * rotationAmount);
+        // Acceleration Input
+        verticalInput = Input.GetAxis("Vertical");
 
-            if (rearAxleTransform != null)
-                rearAxleTransform.Rotate(Vector3.right * rotationAmount);
-        }
+        // Breaking Input
+        isBreaking = Input.GetKey(KeyCode.Space);
+    }
+
+    private void HandleMotor() {
+        frontLeftWheelCollider.motorTorque = verticalInput * motorForce;
+        frontRightWheelCollider.motorTorque = verticalInput * motorForce;
+        currentbreakForce = isBreaking ? breakForce : 0f;
+        ApplyBreaking();
+    }
+
+    private void ApplyBreaking() {
+        frontRightWheelCollider.brakeTorque = currentbreakForce;
+        frontLeftWheelCollider.brakeTorque = currentbreakForce;
+        rearLeftWheelCollider.brakeTorque = currentbreakForce;
+        rearRightWheelCollider.brakeTorque = currentbreakForce;
+    }
+
+    private void HandleSteering() {
+        currentSteerAngle = maxSteerAngle * horizontalInput;
+        frontLeftWheelCollider.steerAngle = currentSteerAngle;
+        frontRightWheelCollider.steerAngle = currentSteerAngle;
+    }
+
+    private void UpdateWheels() {
+        UpdateSingleWheel(frontLeftWheelCollider, frontLeftWheelTransform);
+        UpdateSingleWheel(frontRightWheelCollider, frontRightWheelTransform);
+        UpdateSingleWheel(rearRightWheelCollider, rearRightWheelTransform);
+        UpdateSingleWheel(rearLeftWheelCollider, rearLeftWheelTransform);
+    }
+
+    private void UpdateSingleWheel(WheelCollider wheelCollider, Transform wheelTransform) {
+        Vector3 pos;
+        Quaternion rot; 
+        wheelCollider.GetWorldPose(out pos, out rot);
+        wheelTransform.rotation = rot;
+        wheelTransform.position = pos;
     }
 }
