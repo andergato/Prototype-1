@@ -8,6 +8,7 @@ public class CarController : MonoBehaviour
     private float horizontalInput, verticalInput;
     private float currentSteerAngle, currentbreakForce;
     private bool isBreaking;
+    Rigidbody rb;
 
     // Settings
     [SerializeField] private float motorForce, breakForce, maxSteerAngle;
@@ -22,10 +23,26 @@ public class CarController : MonoBehaviour
 
     private void Update() { GetInput(); }
 
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+        rb.centerOfMass = new Vector3(0,-.5f,0);
+    }
     private void FixedUpdate() {
         HandleMotor();
         HandleSteering();
         UpdateWheels();
+        ApplyDownforce();
+    }
+
+    void ApplyDownforce()
+    {
+        float currentSpeed = rb.linearVelocity.magnitude;
+        float downforceCoefficient = 5f; // Tweak this to add more 'stickiness'
+        
+        // Pushes the car down relative to its roof, NOT global gravity
+        Vector3 downforce = -transform.up * downforceCoefficient * currentSpeed;
+        rb.AddForce(downforce, ForceMode.Force);
     }
 
     private void GetInput() {

@@ -14,11 +14,13 @@ public class InstantTeleport : MonoBehaviour
         // Checks if the entering object has the required tag
         if (other.CompareTag(triggerTag))
         {
-            TeleportObject(other.gameObject);
+            Rigidbody rb = other.transform.parent.gameObject.GetComponent<Rigidbody>();
+            Debug.Log(rb.name);
+            TeleportObject(rb);
         }
     }
 
-    private void TeleportObject(GameObject obj)
+    private void TeleportObject(Rigidbody rb)
     {
         if (destination == null)
         {
@@ -27,17 +29,17 @@ public class InstantTeleport : MonoBehaviour
         }
 
         // Disable CharacterController temporarily if present to prevent position overrides
-        CharacterController cc = obj.GetComponent<CharacterController>();
+        CharacterController cc = rb.GetComponent<CharacterController>();
         if (cc != null) cc.enabled = false;
 
         // Instantly move the object to the destination
-        obj.transform.position = destination.position;
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.rotation = destination.rotation;
+        rb.position = destination.position;
         
-        // Optional: Match the target destination's rotation
-        // obj.transform.rotation = destination.rotation;
-
         if (cc != null) cc.enabled = true;
 
-        Debug.Log(obj.name + " instantly teleported to " + destination.name);
+        Debug.Log(rb.name + " instantly teleported to " + destination.name);
     }
 }
