@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class InstantTeleport : MonoBehaviour
+public class TeleportObject : MonoBehaviour
 {
     [Header("Teleport Settings")]
     public Transform destination;       // The target location transform
@@ -8,6 +8,17 @@ public class InstantTeleport : MonoBehaviour
     [Header("Trigger Tag Filter")]
     [Tooltip("Only objects with this tag will be teleported.")]
     public string triggerTag = "Player"; // Tag required to trigger teleport
+    CountdownTimer timer;
+    bool timerFire = false;
+    private void OnEnable()
+    {
+        CountdownTimer.TimerDone += FireTimer;
+    }
+
+    private void FireTimer()
+    {
+        timerFire = true;
+    }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -16,11 +27,11 @@ public class InstantTeleport : MonoBehaviour
         {
             Rigidbody rb = other.transform.parent.gameObject.GetComponent<Rigidbody>();
             Debug.Log(rb.name);
-            TeleportObject(rb);
+            Teleport(rb);
         }
     }
 
-    private void TeleportObject(Rigidbody rb)
+    private void Teleport(Rigidbody rb)
     {
         if (destination == null)
         {
@@ -28,6 +39,7 @@ public class InstantTeleport : MonoBehaviour
             return;
         }
 
+        timer.StartTimer();
         // Disable CharacterController temporarily if present to prevent position overrides
         CharacterController cc = rb.GetComponent<CharacterController>();
         if (cc != null) cc.enabled = false;
