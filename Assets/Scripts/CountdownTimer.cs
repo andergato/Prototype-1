@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CountdownTimer : MonoBehaviour
 {
-    public float seconds = 0.0f;
+    public float seconds = 3f;
     public TextMeshProUGUI timerText;
     private bool timerStart;
 
@@ -20,16 +20,23 @@ public class CountdownTimer : MonoBehaviour
     {
         if (timerStart)
         {
-            while (seconds > 0.0f)
+            if (seconds > 0.0f)
             {
+                Debug.Log("Time left:" + seconds);
                 seconds -= Time.deltaTime;
-
-                timerText.text = seconds.ToString();
+                timerText.text = Math.Round(seconds).ToString();
+            }
+            if(seconds <= 0.0f)
+            {
+                print("YAY");
+                TimerDone?.Invoke();
+                timerStart = false;
             }
         }
-        TimerDone?.Invoke();
+
     }
 
+    // Called to start timer
     public void StartTimer()
     {
         timerStart = true;
