@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class InventoryController : MonoBehaviour
 {
+    public MaterialSphereRenderer sphereRenderer;
+    public Material mat;
     public Inventory inventory; // Player's current inventory, operates as a stack so each new item picked up will be dropped first. 
     public static event Action OnItemDrop; // Event to let the PlayerController know that an item has been dropped off.
-
+    public static event Action<Sprite> OnItemPickup; // Event to let the PlayerController know that an item has been picked up.
     private void OnTriggerEnter(Collider other)
     {
         // When an item has not been picked up yet, as the user moves over it, it will disappear and go to the top of the player's inventory.
@@ -18,6 +20,7 @@ public class InventoryController : MonoBehaviour
             {
                 inventory.AddItem(pickup);
                 other.gameObject.SetActive(false);
+                OnItemPickup?.Invoke(pickup.itemIcon);
             }
         }
 

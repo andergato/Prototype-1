@@ -6,6 +6,7 @@ TagManager:
   tags:
   - ItemDrop
   - ItemPickup
+  - PowerUp
   layers:
   - Default
   - TransparentFX
