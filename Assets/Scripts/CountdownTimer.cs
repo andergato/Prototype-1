@@ -5,13 +5,16 @@ using UnityEngine;
 public class CountdownTimer : MonoBehaviour
 {
     public float seconds = 3f;
-    public TextMeshProUGUI timerText;
+    public GameObject timerText;
+    [SerializeField] GameObject timerUI;
     private bool timerStart;
 
     public static event Action TimerDone;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        timerText.SetActive(false);
+        timerUI.SetActive(false);
         timerStart = false;
     }
 
@@ -20,14 +23,17 @@ public class CountdownTimer : MonoBehaviour
     {
         if (timerStart)
         {
+            
             if (seconds > 0.0f)
             {
                 Debug.Log("Time left:" + seconds);
                 seconds -= Time.deltaTime;
-                timerText.text = Math.Round(seconds).ToString();
+                timerText.GetComponent<TextMeshProUGUI>().text = Math.Round(seconds).ToString();
             }
             if(seconds <= 0.0f)
             {
+                timerText.SetActive(false);
+                timerUI.SetActive(false);
                 print("YAY");
                 TimerDone?.Invoke();
                 timerStart = false;
@@ -40,5 +46,7 @@ public class CountdownTimer : MonoBehaviour
     public void StartTimer()
     {
         timerStart = true;
+        timerText.SetActive(true);
+        timerUI.SetActive(true);
     }
 }
