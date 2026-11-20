@@ -5,6 +5,7 @@ using UnityEngine;
 public class CountdownTimer : MonoBehaviour
 {
     public float seconds = 3f;
+    private float secondsElapsed;
     public GameObject timerText;
     [SerializeField] GameObject timerUI;
     private bool timerStart;
@@ -13,9 +14,13 @@ public class CountdownTimer : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        timerText.SetActive(false);
-        timerUI.SetActive(false);
+        if (timerText)
+        {
+            timerText.SetActive(false);
+            timerUI.SetActive(false);
+        }
         timerStart = false;
+        secondsElapsed = seconds;
     }
 
     // Update is called once per frame
@@ -24,16 +29,19 @@ public class CountdownTimer : MonoBehaviour
         if (timerStart)
         {
             
-            if (seconds > 0.0f)
+            if (secondsElapsed > 0.0f)
             {
-                Debug.Log("Time left:" + seconds);
-                seconds -= Time.deltaTime;
-                timerText.GetComponent<TextMeshProUGUI>().text = Math.Round(seconds).ToString();
+                Debug.Log("Time left:" + secondsElapsed);
+                secondsElapsed -= Time.deltaTime;
+                if (timerText) timerText.GetComponent<TextMeshProUGUI>().text = Math.Round(secondsElapsed).ToString();
             }
-            if(seconds <= 0.0f)
+            if(secondsElapsed <= 0.0f)
             {
-                timerText.SetActive(false);
-                timerUI.SetActive(false);
+                if (timerText)
+                {
+                    timerText.SetActive(false);
+                    timerUI.SetActive(false);
+                }
                 print("YAY");
                 TimerDone?.Invoke();
                 timerStart = false;
@@ -46,7 +54,10 @@ public class CountdownTimer : MonoBehaviour
     public void StartTimer()
     {
         timerStart = true;
-        timerText.SetActive(true);
-        timerUI.SetActive(true);
+        if (timerText)
+        {
+            timerText.SetActive(true);
+            timerUI.SetActive(true);
+        }
     }
 }

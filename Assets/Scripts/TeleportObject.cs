@@ -16,7 +16,7 @@ public class TeleportObject : MonoBehaviour
     bool timerFire = false;
 
     // Rigidbody to teleport
-    private Rigidbody rb;
+    public Rigidbody rb;
 
     private void Update()
     {
@@ -43,14 +43,14 @@ public class TeleportObject : MonoBehaviour
         // Checks if the entering object has the required tag
         if (other.CompareTag(triggerTag))
         {
-            rb = other.transform.parent.gameObject.GetComponent<Rigidbody>();
+            //rb = other.transform.parent.gameObject.GetComponent<Rigidbody>();
             Debug.Log(rb.name);
             timer.StartTimer();
         }
     }
 
     // Teleport Rigidbody to destination
-    private void Teleport(Rigidbody rb)
+    public void Teleport(Rigidbody rb)
     {
         // Check if destination transform is valid
         if (destination == null)
@@ -80,5 +80,7 @@ public class TeleportObject : MonoBehaviour
 
         Debug.Log(rb.name + " teleported to " + destination.name);
         timerFire = false;
+        //transform.parent.gameObject.SetActive(false);
+        this.enabled = false;
     }
 }
